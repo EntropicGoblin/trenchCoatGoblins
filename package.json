@@ -1,0 +1,12 @@
+{
+  "name": "trench-coat-goblins",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:api": "bun run --filter api dev",
+    "dev:web": "bun run --filter web dev",
+    "build": "bun run --filter '*' build",
+    "lint": "bun run --filter '*' lint",
+    "test": "bun run --filter '*' test"
+  }
+}
