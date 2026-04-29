@@ -1,4 +1,30 @@
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: tcg-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - tcg-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tcg-network
+
   api:
     build:
       context: ./apps/api
@@ -9,6 +35,16 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=production
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - tcg-network
 
@@ -24,6 +60,9 @@ services:
       - api
     networks:
       - tcg-network
+
+volumes:
+  tcg-postgres-data:
 
 networks:
   tcg-network:
