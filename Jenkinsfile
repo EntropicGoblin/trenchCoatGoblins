@@ -28,14 +28,14 @@ pipeline {
 
         stage('Build Images') {
             steps {
-                sh 'docker-compose build --no-cache'
+                sh 'docker compose build --no-cache'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'docker-compose down || true'
-                sh 'docker-compose up -d'
+                sh 'docker compose down || true'
+                sh 'docker compose up -d'
             }
         }
 
@@ -55,7 +55,7 @@ pipeline {
         }
         failure {
             echo 'Deployment failed!'
-            sh 'docker-compose logs'
+            sh 'docker compose logs'
         }
     }
 }
